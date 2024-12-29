@@ -9,13 +9,12 @@ help:
 	@echo "  make run-prod    - Run the app in production mode"
 
 # Variables
-FLASK_ENV = development
 PORT = 8000
 
 # Development environment
 run-dev:
-	flask run --debug --port $(PORT)
+	.venv/bin/flask run --debug --port $(PORT)
 
 # Production environment
 run-prod:
-	flask run --port $(PORT)
+	.venv/bin/gunicorn -b localhost:$(PORT) -w 2 garden:app

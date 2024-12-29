@@ -9,6 +9,6 @@ def index():
     return render_template("index.html")
 
 
-@bp.route("/health")
-def explore():
+@bp.route("/status")
+def status():
     return render_template("health.html", title="Status")

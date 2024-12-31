@@ -1,4 +1,5 @@
 from flask import render_template
+from flask_login import current_user, login_required
 
 from homer.main import bp
 
@@ -10,5 +11,6 @@ def index():
 
 
 @bp.route("/status")
+@login_required
 def status():
-    return render_template("health.html", title="Status")
+    return render_template("health.html", title="Status", current_user=current_user)

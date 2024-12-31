@@ -5,9 +5,13 @@ description = "Home Flask app"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "flask-sqlalchemy>=3.1.1",
     "flask>=3.1.0",
     "gunicorn>=23.0.0",
     "python-dotenv>=1.0.1",
+    "flask-migrate>=4.0.7",
+    "flask-login>=0.6.3",
+    "flask-wtf>=1.2.2",
 ]
 
 [dependency-groups]

@@ -3,13 +3,26 @@ import os
 from logging.handlers import RotatingFileHandler
 
 from flask import Flask
-
+from flask_login import LoginManager
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 from config import Config
+
+
+db = SQLAlchemy()
+migrate = Migrate()
+login = LoginManager()
+login.login_view = "auth.login"
+login.login_message = "Tady je potřeba přihlášení."
 
 
 def create_app(config_class=Config) -> Flask:
     homer = Flask(__name__)
     homer.config.from_object(config_class)
+
+    db.init_app(homer)
+    migrate.init_app(homer, db)
+    login.init_app(homer)
 
     from homer.errors import bp as errors_bp
 
@@ -18,6 +31,10 @@ def create_app(config_class=Config) -> Flask:
     from homer.main import bp as main_bp
 
     homer.register_blueprint(main_bp)
+
+    from homer.auth import bp as auth_bp
+
+    homer.register_blueprint(auth_bp, url_prefix="/auth")
 
     if not homer.debug and not homer.testing:
         if not os.path.exists("logs"):

@@ -27,3 +27,17 @@ killasgroup=true
 ```
 - reload config `sudo supervisorctl reload`
 - [configure nginx](https://docs.nginx.com/nginx/admin-guide/web-server/reverse-proxy/) if needed (different port than 80)
+
+### Add users
+App will run on local network only. For now users are added manually like this:
+- activate virtual environment (server or dev)
+```python
+>>> from garden import app
+>>> from homer import db
+>>> from homer.models import User
+>>> app.app_context().push() # to work in app context
+>>> u = User(username="Foo")
+>>> u.set_password("secret")
+>>> db.session.add(u)
+>>> db.session.commit()
+```

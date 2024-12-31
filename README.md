@@ -41,3 +41,4 @@ App will run on local network only. For now users are added manually like this:
 >>> db.session.add(u)
 >>> db.session.commit()
 ```
+On server, update `.env` file with `DATABASE_URL`

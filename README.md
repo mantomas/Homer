@@ -13,7 +13,9 @@ Local home server
 
 ### To run on server
 - install system deps `sudo apt install supervisor nginx`
-- add `.env` file with required configs (SECRET_KEY, ...)
+- add `.env` file with required configs
+    - SECRET_KEY
+    - DATABASE_URL
 - create config `/etc/supervisor/conf.d/homer.conf`
 ```ini
 [program:homer]
@@ -41,4 +43,3 @@ App will run on local network only. For now users are added manually like this:
 >>> db.session.add(u)
 >>> db.session.commit()
 ```
-On server, update `.env` file with `DATABASE_URL`

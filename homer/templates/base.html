@@ -16,35 +16,45 @@
         crossorigin="anonymous">
   </head>
   <body>
-    <nav class="navbar navbar-expand-lg bg-body-tertiary">
-      <div class="container">
-        <a class="navbar-brand" href="{{ url_for('main.index') }}">Homer</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Přepnout navigaci">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-            <li class="nav-item">
-              <a class="nav-link" aria-current="page" href="{{ url_for('main.index') }}">{{ 'Domů' }}</a>
-            </li>
-          </ul>
-          <ul class="navbar-nav mb-2 mb-lg-0">
-            {% if current_user.is_anonymous %}
-            <li class="nav-item">
-              <a class="nav-link" aria-current="page" href="{{ url_for('auth.login') }}">{{ 'Přihlásit' }}</a>
-            </li>
-            {% else %}
-            <li class="nav-item">
-              <a class="nav-link" aria-current="page" href="{{ url_for('auth.logout') }}">{{ 'Odhlásit' }}</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" aria-current="page" href="{{ url_for('main.status') }}">{{ 'Status' }}</a>
-            </li>
-            {% endif %}
-          </ul>
+    <div class="container">
+      <nav class="navbar navbar-expand-lg bg-body-tertiary">
+        <div class="container-fluid">
+          <a class="navbar-brand {% block nav_home %}{% endblock %}" href="{{ url_for('main.index') }}">Homer</a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle {% block nav_wiki %}{% endblock %}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  Wiki
+                </a>
+                <ul class="dropdown-menu">
+                  {% for page in pages %}
+                  <li><a class="dropdown-item" href="{{ url_for('main.page_read', url_suffix=page.url_suffix) }}">{{ page.url_suffix }}</a></li>
+                  {% endfor %}
+                  <li><hr class="dropdown-divider"></li>
+                  <li><a class="dropdown-item" href="{{ url_for('main.page') }}">Vytvořit stránku</a></li>
+                </ul>
+              </li>
+              {% if current_user.is_anonymous %}
+              <li class="nav-item">
+                <a class="nav-link {% block nav_login %}{% endblock %}" href="{{ url_for('auth.login') }}">{{ 'Přihlásit' }}</a>
+              </li>
+              {% else %}
+              <li class="nav-item">
+                <a class="nav-link {% block nav_status %}{% endblock %}" href="{{ url_for('main.status') }}">{{ 'Status' }}</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('auth.logout') }}">{{ 'Odhlásit' }}</a>
+              </li>
+              {% endif %}
+              </li>
+            </ul>
+          </div>
         </div>
-      </div>
-    </nav>
+      </nav>
+    </div>
     <div class="container mt-3">
       {% with messages = get_flashed_messages() %}
       {% if messages %}

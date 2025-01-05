@@ -67,6 +67,7 @@ logs/
 certs/
 .webassets-cache
 *.sqlite3
+*.sqlite3-journal
 
 # Scrapy stuff:
 .scrapy

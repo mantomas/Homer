@@ -4,8 +4,10 @@ from logging.handlers import RotatingFileHandler
 
 from flask import Flask
 from flask_login import LoginManager
-from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+from flask_pagedown import PageDown
+from flask_sqlalchemy import SQLAlchemy
+
 from config import Config
 
 
@@ -14,6 +16,7 @@ migrate = Migrate()
 login = LoginManager()
 login.login_view = "auth.login"
 login.login_message = "Tady je potřeba přihlášení."
+pagedown = PageDown()
 
 
 def create_app(config_class=Config) -> Flask:
@@ -23,6 +26,7 @@ def create_app(config_class=Config) -> Flask:
     db.init_app(homer)
     migrate.init_app(homer, db)
     login.init_app(homer)
+    pagedown.init_app(homer)
 
     from homer.errors import bp as errors_bp
 
@@ -35,6 +39,10 @@ def create_app(config_class=Config) -> Flask:
     from homer.auth import bp as auth_bp
 
     homer.register_blueprint(auth_bp, url_prefix="/auth")
+
+    from homer.main.pages_menu import inject_navigation
+
+    homer.context_processor(inject_navigation(db))
 
     if not homer.debug and not homer.testing:
         if not os.path.exists("logs"):

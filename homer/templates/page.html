@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% import "bootstrap_wtf.html" as wtf %}
+
+{% block content %}
+{{ pagedown.include_pagedown() }}
+    <h1>{{ title }}</h1>
+    
+    <div>
+        {% if current_user.is_authenticated %}
+        <p>Nápověda k <a href="https://www.markdownguide.org/basic-syntax/" target="_blank">Markdown</a></p>
+        {{ wtf.quick_form(form) }}
+        {% else %}
+        <p>Pro vytvoření nové stránky je potřeba <a href="{{ url_for('auth.login') }}">přihlášení</a>.</p>
+        {% endif %}
+    </div>
+{% endblock %}

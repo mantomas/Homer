@@ -15,7 +15,7 @@ Local home server
 - install system deps `sudo apt install supervisor nginx`
 - add `.env` file with required configs
     - SECRET_KEY
-    - DATABASE_URL
+    - DATABASE_URL in form of `sqlite:////home/user/path/to/db/db.sqlite3`. It must be a absolute path after removing the `sqlite:///` prefix.
 - create config `/etc/supervisor/conf.d/homer.conf`
 ```ini
 [program:homer]
@@ -29,6 +29,12 @@ killasgroup=true
 ```
 - reload config `sudo supervisorctl reload`
 - [configure nginx](https://docs.nginx.com/nginx/admin-guide/web-server/reverse-proxy/) if needed (different port than 80)
+
+### Server upgrade
+- ssh to the server
+- go to the Homer root
+- run the upgrade script `sudo ./upgrade.sh`
+- DB backup will be stored in `./backups`
 
 ### Add users
 App will run on local network only. For now users are added manually like this:

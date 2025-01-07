@@ -6,6 +6,7 @@ function run_with_check {
     command=$1
     description=$2
     echo "Running: $description"
+    # ensure running as regular user
     $command
     if [[ $? -ne 0 ]];then
         echo "Error running: $description"
@@ -26,20 +27,35 @@ function backup_db {
     fi
 }
 
-if [[ ! -f $VENV ]] || [[ ! -f $PROJECT_ENV ]];then
-    echo "No virtual environment, working in incorrect directory or project not set up"
-    exit 1
-else
+function check_status {
+    echo "Checking environment."
+    if [[ ! -f $VENV ]] || [[ ! -f $PROJECT_ENV ]];then
+        echo "No virtual environment, working in incorrect directory or project not set up"
+        exit 1
+    fi
+}
+
+function init_env {
     echo "Activating environment"
     source $VENV
     source $PROJECT_ENV
-fi
+}
 
+# basic check if it looks like the right kind of project
+check_status
+# backup DB before any changes
 run_with_check "backup_db" "database backup"
-run_with_check "supervisorctl stop homer" "stop Homer"
+# init the environment
+init_env
+# ready, stop Homer then
+run_with_check "sudo supervisorctl stop homer" "stop Homer"
+# get latest changes
 run_with_check "git pull" "pull latest changes"
+# sync dependencies
 run_with_check "uv sync --no-dev" "update dependencies"
+# perform DB migration
 run_with_check "flask db upgrade" "run DB migration"
-run_with_check "supervisorctl start homer" "start Homer"
+# get Homer back on
+run_with_check "sudo supervisorctl start homer" "start Homer"
 
 echo "END"

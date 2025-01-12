@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime
 from typing import Optional
 from urllib import parse
 
@@ -69,3 +69,65 @@ class Page(db.Model):
 
 
 db.event.listen(Page.body, "set", Page.on_changed_body)
+
+
+class Heating(db.Model):
+    id: sqo.Mapped[int] = sqo.mapped_column(primary_key=True)
+    weight: sqo.Mapped[float] = sqo.mapped_column(sqa.Float, nullable=False)
+    burn_date: sqo.Mapped[datetime] = sqo.mapped_column(sqa.Date, nullable=False)
+    temperature_in: sqo.Mapped[float] = sqo.mapped_column(sqa.Float)
+    temperature_out: sqo.Mapped[float] = sqo.mapped_column(sqa.Float)
+    note: sqo.Mapped[str] = sqo.mapped_column(sqa.String(500))
+    season: sqo.Mapped[str] = sqo.mapped_column(sqa.String(10))
+
+    def __repr__(self):
+        return "<Heating record {}>".format(self.burn_date)
+
+    @sqo.validates("weight")
+    def validate_weight(self, key, value):
+        if not 5.0 < float(value) < 14.0:
+            raise ValueError("Do kamen patří 6 až 12 kg dřeva.")
+        return value
+
+    @sqo.validates("burn_date")
+    def validate_burn_date(self, key, value):
+        if not isinstance(value, date):
+            raise ValueError("Datum je ve špatném formátu.")
+
+        if value > date.today():
+            raise ValueError("Nemůžeš topit v budoucnosti.")
+
+        same_day_records = db.session.execute(
+            db.select(Heating).where(Heating.burn_date == value)
+        ).scalars()
+        if len(list(same_day_records)) > 1:
+            raise ValueError("Maximálně 2 topení za den.")
+
+        return value
+
+    @sqo.validates("temperature_in")
+    def validate_temperature_in(self, key, value):
+        if not 0.0 < float(value) < 25.0:
+            raise ValueError("Předpokládám teplotu mezi 0 a 25 °C.")
+        return value
+
+    @sqo.validates("temperature_out")
+    def validate_temperature_out(self, key, value):
+        if not -80.0 < float(value) < 60.0:
+            raise ValueError(f"Apokalypsa nastala, když je venku {value} °C.")
+        return value
+
+    @staticmethod
+    def set_season(target, value, oldvalue, initiator):
+        """
+        Set season based on burn_date
+        Season last from 1.7. to 30.6.
+        Format is "YYYY-XXXX" e.g "2020-2021"
+        """
+        if value.month < 7:
+            target.season = f"{value.year - 1}-{value.year}"
+        else:
+            target.season = f"{value.year}-{value.year + 1}"
+
+
+db.event.listen(Heating.burn_date, "set", Heating.set_season)

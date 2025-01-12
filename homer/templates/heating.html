@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% import "_macros.html" as macros %}
+
+{% block content %}
+    <h1>{{ title }}</h1>
+    
+    <div>
+        {% if current_user.is_authenticated %}
+        <form method="post" action="">
+            {{ form.hidden_tag() }}
+            <div class="row">
+                <div class="col"> 
+                {{ form.burn_date.label }} {{ form.burn_date(class="form-control") }}
+                </div>
+                <div class="col">
+                {{ form.weight.label }} {{ form.weight(class="form-control") }}
+                </div>
+            </div>
+            <div class="mb-3">
+                {{ form.temperature_in.label }}
+                <strong id="temperature_in_value">{{ form.temperature_in.data or 21 }}</strong>°C
+                {{ form.temperature_in(class="form-control", min='8', max='24', step='0.1', value=form.temperature_in.data or 21) }}
+            </div>
+            <div class="mb-3">
+                {{ form.temperature_out.label }}
+                <strong id="temperature_out_value">{{ form.temperature_out.data or 0 }}</strong>°C
+                {{ form.temperature_out(class="form-control", min='-30', max='24', step='0.1', value=form.temperature_out.data or 0) }}
+            </div>
+            <div class="mb-3">
+                {{ form.note.label }} {{ form.note(class="form-control") }}
+            </div>
+            <div class="mb-3">
+                {{ form.submit(class="btn btn-primary") }}
+            </div>
+        </form> 
+
+        <script>
+            // JavaScript to update the displayed value of the slider
+            const temperatureInSlider = document.querySelector('input[name="temperature_in"]');
+            const temperatureInValue = document.getElementById('temperature_in_value');
+            const temperatureOutSlider = document.querySelector('input[name="temperature_out"]');
+            const temperatureOutValue = document.getElementById('temperature_out_value');
+    
+            // Update the displayed values when the slider is moved
+            temperatureInSlider.addEventListener('input', function () {
+                temperatureInValue.textContent = temperatureInSlider.value;
+            });
+            temperatureOutSlider.addEventListener('input', function () {
+                temperatureOutValue.textContent = temperatureOutSlider.value;
+            });
+        </script>
+        {% endif %}
+    </div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Datum</th>
+                <th scope="col">Sezóna</th>
+                <th scope="col">Dřeva</th>
+                <th scope="col">Uvnitř</th>
+                <th scope="col">Venku</th>
+                <th scope="col">Poznámka</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for record in records %}
+            <tr>
+            <td>{{ record.burn_date.day }}/{{ record.burn_date.month }}/{{ record.burn_date.year }}</td>
+            <td>{{ record.season }}</td>
+            <td>{{ record.weight }} kg</td>
+            <td>{{ record.temperature_in }} °C</td>
+            <td>{{ record.temperature_out }} °C</td>
+            <td>{{ record.note }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <div class="pagination">
+        {{ macros.render_pagination(records, '.heating') }}
+    </div>
+
+{% endblock %}

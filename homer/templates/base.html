@@ -19,14 +19,14 @@
     <div class="container">
       <nav class="navbar navbar-expand-lg bg-body-tertiary">
         <div class="container-fluid">
-          <a class="navbar-brand {% block nav_home %}{% endblock %}" href="{{ url_for('main.index') }}">Homer</a>
+          <a class="navbar-brand" href="{{ url_for('main.index') }}">Homer</a>
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
           </button>
           <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
               <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle {% block nav_wiki %}{% endblock %}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                   Wiki
                 </a>
                 <ul class="dropdown-menu">
@@ -37,13 +37,16 @@
                   <li><a class="dropdown-item" href="{{ url_for('main.page') }}">Vytvořit stránku</a></li>
                 </ul>
               </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('main.heating') }}">{{ 'Topení' }}</a>
+              </li>
               {% if current_user.is_anonymous %}
               <li class="nav-item">
-                <a class="nav-link {% block nav_login %}{% endblock %}" href="{{ url_for('auth.login') }}">{{ 'Přihlásit' }}</a>
+                <a class="nav-link" href="{{ url_for('auth.login') }}">{{ 'Přihlásit' }}</a>
               </li>
               {% else %}
               <li class="nav-item">
-                <a class="nav-link {% block nav_status %}{% endblock %}" href="{{ url_for('main.status') }}">{{ 'Status' }}</a>
+                <a class="nav-link" href="{{ url_for('main.status') }}">{{ 'Status' }}</a>
               </li>
               <li class="nav-item">
                 <a class="nav-link" href="{{ url_for('auth.logout') }}">{{ 'Odhlásit' }}</a>

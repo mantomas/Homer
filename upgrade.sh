@@ -43,10 +43,10 @@ function init_env {
 
 # basic check if it looks like the right kind of project
 check_status
-# backup DB before any changes
-run_with_check "backup_db" "database backup"
 # init the environment
 init_env
+# backup DB before any changes
+run_with_check "backup_db" "database backup"
 # ready, stop Homer then
 run_with_check "sudo supervisorctl stop homer" "stop Homer"
 # get latest changes

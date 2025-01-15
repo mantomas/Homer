@@ -9,7 +9,7 @@ from wtforms import (
     SelectField,
     widgets,
 )
-from wtforms.validators import DataRequired
+from wtforms.validators import DataRequired, NumberRange
 from flask_pagedown.fields import PageDownField
 
 
@@ -30,7 +30,6 @@ class FloatRangeField(FloatField):
 class HeatingForm(FlaskForm):
     burn_date = DateField(
         "Datum",
-        default=date.today(),
         validators=[
             DataRequired("Zadej datum ve formátu dd/mm/rrrr nebo použij kalendář")
         ],
@@ -41,7 +40,19 @@ class HeatingForm(FlaskForm):
         choices=weight_choices,
         validators=[DataRequired()],
     )
-    temperature_in = FloatRangeField("Teplota uvnitř", validators=[])
-    temperature_out = FloatRangeField("Teplota venku", validators=[])
+    temperature_in = FloatField(
+        "Teplota uvnitř",
+        validators=[
+            DataRequired("Zadej teplotu uvnitř"),
+            NumberRange(0, 25, "Ta teplota uvnitř se mi nezdá."),
+        ],
+    )
+    temperature_out = FloatField(
+        "Teplota venku",
+        validators=[
+            DataRequired("zadej teplotu venku"),
+            NumberRange(-80, 40, "Ta teplota venku se mi nezdá."),
+        ],
+    )
     note = StringField("Poznámka")
     submit = SubmitField("Uložit")

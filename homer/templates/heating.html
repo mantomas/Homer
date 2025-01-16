@@ -10,10 +10,12 @@
             {{ form.hidden_tag() }}
             <div class="row">
                 <div class="col"> 
-                    {{ form.burn_date.label }} {{ form.burn_date(class="form-control") }}
+                    {{ form.burn_date.label }}
+                    {{ form.burn_date(class="form-control") }}
                 </div>
                 <div class="col">
-                {{ form.weight.label }} {{ form.weight(class="form-control") }}
+                {{ form.weight.label }}
+                {{ form.weight(class="form-control") }}
                 </div>
             </div>
             <div class="row">
@@ -35,29 +37,46 @@
                         {% endfor %}
                     {% endif %}
                 </div>
+                <div class="col">
+                    <label>Poznámka</label>
+                    <button type="button" class="form-control" onclick="toggleHiddenSection()">
+                        + přidat
+                    </button>
+                </div>
             </div>
-            <div class="mb-3">
-                {{ form.note.label }} {{ form.note(class="form-control") }}
+            <div class="mb-3" id="note-input" style="display: none">
+                {{ form.note.label }}
+                {{ form.note(class="form-control") }}
             </div>
+            <div class="mb-3"></div>
             <div class="mb-3">
                 {{ form.submit(class="btn btn-primary") }}
             </div>
         </form> 
 
         <script>
-            // JavaScript to update the displayed value of the slider
-            const temperatureInSlider = document.querySelector('input[name="temperature_in"]');
-            const temperatureInValue = document.getElementById('temperature_in_value');
-            const temperatureOutSlider = document.querySelector('input[name="temperature_out"]');
-            const temperatureOutValue = document.getElementById('temperature_out_value');
-    
-            // Update the displayed values when the slider is moved
-            temperatureInSlider.addEventListener('input', function () {
-                temperatureInValue.textContent = temperatureInSlider.value;
-            });
-            temperatureOutSlider.addEventListener('input', function () {
-                temperatureOutValue.textContent = temperatureOutSlider.value;
-            });
+            // handle the button to show/hide the note input
+            function toggleHiddenSection() {
+              const hiddenSection = document.getElementById('note-input');
+              const button = document.querySelector('.toggle-button');
+              if (hiddenSection.style.display === 'none' || !hiddenSection.style.display) {
+                hiddenSection.style.display = 'block';
+                button.textContent = '- skrýt poznámku';
+              } else {
+                hiddenSection.style.display = 'none';
+                button.textContent = '- skrýt poznámku';
+              }
+            }
+            // handle default date in the form
+            function setDefaultDate() {
+            const datePicker = document.getElementById('burn_date');
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            datePicker.value = `${year}-${month}-${day}`;
+            }
+            window.onload = setDefaultDate;
         </script>
         {% endif %}
     </div>

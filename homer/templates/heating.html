@@ -98,7 +98,11 @@
                     {{ record.burn_date.day }}/{{ record.burn_date.month }}/{{ record.burn_date.year }}
                 </a>
             </td>
-            <td>{{ record.season }}</td>
+            <td>
+                <a href="{{ url_for('main.heating_season', season_id=record.season) }}">
+                    {{ record.season }}
+                </a>
+            </td>
             <td>{{ record.weight }} kg</td>
             <td>{{ record.temperature_in }} °C</td>
             <td>{{ record.temperature_out }} °C</td>

@@ -1,51 +1,50 @@
 {% extends "base.html" %}
-{% import "_macros.html" as macros %}
 
 {% block content %}
-    <h1>{{ title }}</h1>
-    <div class="mb-3">
-        <form method="post" action="">
-            {{ form.hidden_tag() }}
-            <div class="row">
-                <div class="col"> 
-                    {{ form.burn_date.label }}
-                    {{ form.burn_date(class="form-control") }}
-                </div>
-                <div class="col">
-                    {{ form.weight.label }}
-                    {{ form.weight(class="form-control") }}
-                </div>
+<h1>{{ title }}</h1>
+<div class="mb-3">
+    <form method="post" action="">
+        {{ form.hidden_tag() }}
+        <div class="row">
+            <div class="col">
+                {{ form.burn_date.label }}
+                {{ form.burn_date(class="form-control") }}
             </div>
-            <div class="row">
-                <div class="col">
-                    {{ form.temperature_in.label }}
-                    {{ form.temperature_in(class="form-control") }}
-                    {% if form.temperature_in.errors %}
-                        {% for error in form.temperature_in.errors %}
-                        <span style="color: red;">{{ error }}</span>
-                        {% endfor %}
-                    {% endif %}
-                </div>
-                <div class="col">
-                    {{ form.temperature_out.label }}
-                    {{ form.temperature_out(class="form-control") }}
-                    {% if form.temperature_out.errors %}
-                        {% for error in form.temperature_out.errors %}
-                        <span style="color: red;">{{ error }}</span>
-                        {% endfor %}
-                    {% endif %}
-                </div>
+            <div class="col">
+                {{ form.weight.label }}
+                {{ form.weight(class="form-control") }}
             </div>
-            <div class="row">
-                <div class="col">
-                    {{ form.note.label }}
-                    {{ form.note(class="form-control") }}
-                </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                {{ form.temperature_in.label }}
+                {{ form.temperature_in(class="form-control") }}
+                {% if form.temperature_in.errors %}
+                {% for error in form.temperature_in.errors %}
+                <span style="color: red;">{{ error }}</span>
+                {% endfor %}
+                {% endif %}
             </div>
-            <div class="mb-3"></div>
-            <div class="mb-3">
-                {{ form.submit(class="btn btn-primary") }}
+            <div class="col">
+                {{ form.temperature_out.label }}
+                {{ form.temperature_out(class="form-control") }}
+                {% if form.temperature_out.errors %}
+                {% for error in form.temperature_out.errors %}
+                <span style="color: red;">{{ error }}</span>
+                {% endfor %}
+                {% endif %}
             </div>
-        </form>
-    </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                {{ form.note.label }}
+                {{ form.note(class="form-control") }}
+            </div>
+        </div>
+        <div class="mb-3"></div>
+        <div class="mb-3">
+            {{ form.submit(class="btn btn-primary") }}
+        </div>
+    </form>
+</div>
 {% endblock %}

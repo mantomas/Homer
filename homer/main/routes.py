@@ -209,3 +209,41 @@ def heating_edit(id):
         form=form,
         current_user=current_user,
     )
+
+
+@bp.route("/heating/season/<season_id>", methods=["GET"])
+def heating_season(season_id):
+    season_records = (
+        db.session.execute(
+            db.select(Heating)
+            .where(Heating.season == escape(season_id))
+            .order_by(Heating.burn_date.asc())
+        )
+        .scalars()
+        .all()
+    )
+    if not season_records:
+        flash(f"Žádné záznamy pro topnou sezonu {escape(season_id)}.")
+        return redirect(url_for(".heating"))
+    season_days = (season_records[-1].burn_date - season_records[0].burn_date).days
+    total_weight = sum([record.weight for record in season_records])
+    temperatures_in = [record.temperature_in for record in season_records]
+    temperatures_out = [record.temperature_out for record in season_records]
+    # put together some stats
+    statistics = {
+        "total_rounds": len(season_records),
+        "total_weight": total_weight,
+        "avg_weight": f"{(total_weight / len(season_records)):.1f}",
+        "season_start": season_records[0].burn_date.strftime("%d/%m/%Y"),
+        "season_end": season_records[-1].burn_date.strftime("%d/%m/%Y"),
+        "season_days": season_days,
+        "average_round": f"{((season_days * 24) / len(season_records)):.0f}",
+        "avg_temp_in": f"{(sum(temperatures_in) / len(season_records)):.1f}",
+        "avg_temp_out": f"{(sum(temperatures_out) / len(season_records)):.1f}",
+    }
+
+    return render_template(
+        "heating_season.html",
+        title=f"Topná sezóna {season_id}",
+        statistics=statistics,
+    )

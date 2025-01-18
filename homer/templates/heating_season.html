@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>{{ title }}</h1>
+<div class="container">
+    <ul>
+        <li>Délka sezóny: <strong>{{ statistics.season_days }}</strong> dnů</li>
+        <ul>
+            <li>Začátek sezóny: <strong>{{ statistics.season_start }}</strong></li>
+            <li>Konec sezóny: <strong>{{ statistics.season_end }}</strong></li>
+            <li>Průměrně topeno každých <strong>{{ statistics.average_round }}</strong> hodin</li>
+        </ul>
+        <li>Počet topení za sezónu: <strong>{{ statistics.total_rounds }}</strong></li>
+        <ul>
+            <li>Průměrná teplota uvnitř při topení: <strong>{{ statistics.avg_temp_in }}</strong> ˚C</li>
+            <li>Průměrná teplota venku při topení: <strong>{{ statistics.avg_temp_out }}</strong> ˚C</li>
+            <li>Průměrná množství dřeva: <strong>{{ statistics.avg_weight }}</strong> kg</li>
+        </ul>
+        <li>Celkové množství dřeva: <strong>{{ statistics.total_weight }}</strong> kg</li>
+    </ul>
+</div>
+{% endblock %}

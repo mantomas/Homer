@@ -108,7 +108,7 @@ class Heating(db.Model):
     @sqo.validates("temperature_in")
     def validate_temperature_in(self, key, value):
         if not 0.0 < float(value) < 25.0:
-            raise ValueError("Předpokládám teplotu uvnitř mezi 0 až 25 °C.")
+            raise ValueError("Předpokládám teplotu uvnitř mezi 1 až 25 °C.")
         return value
 
     @sqo.validates("temperature_out")

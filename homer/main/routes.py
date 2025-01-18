@@ -145,7 +145,7 @@ def heating():
             flash(to_flash)
             return render_template(
                 "heating.html",
-                title="Záznam o topení",
+                title="Záznamy o topení",
                 form=form,
                 current_user=current_user,
                 records=records,
@@ -155,8 +155,57 @@ def heating():
             return redirect(url_for(".heating"))
     return render_template(
         "heating.html",
-        title="Záznam o topení",
+        title="Záznamy o topení",
         form=form,
         current_user=current_user,
         records=records,
+    )
+
+
+@bp.route("/heating/<id>/edit", methods=["GET", "POST"])
+@login_required
+def heating_edit(id):
+    record = db.one_or_404(db.select(Heating).where(Heating.id == escape(id)))
+    form = HeatingForm()
+    if form.burn_date.data is None:
+        burn_date = record.burn_date
+    else:
+        burn_date = form.burn_date.data
+    title_date = burn_date.strftime("%d/%m/%Y")
+    if form.validate_on_submit():
+        to_flash = None
+        try:
+            record.weight = form.weight.data
+            record.temperature_in = form.temperature_in.data
+            record.temperature_out = form.temperature_out.data
+            record.burn_date = form.burn_date.data
+            record.note = form.note.data
+            db.session.add(record)
+            db.session.commit()
+        except ValueError as e:
+            to_flash = str(e)
+        except Exception as exc:
+            to_flash = exc
+        burn_date = record.burn_date.strftime("%d/%m/%Y")
+        if to_flash:
+            flash(to_flash)
+            return render_template(
+                "heating_edit.html",
+                title=f"Úprava záznamu z {title_date}",
+                form=form,
+                current_user=current_user,
+            )
+        else:
+            flash(f"Záznam z {burn_date} upraven.")
+            return redirect(url_for(".heating"))
+    form.burn_date.data = record.burn_date
+    form.weight.data = record.weight
+    form.temperature_in.data = record.temperature_in
+    form.temperature_out.data = record.temperature_out
+    form.note.data = record.note
+    return render_template(
+        "heating_edit.html",
+        title=f"Úprava záznamu z {title_date}",
+        form=form,
+        current_user=current_user,
     )

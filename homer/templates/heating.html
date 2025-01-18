@@ -2,110 +2,113 @@
 {% import "_macros.html" as macros %}
 
 {% block content %}
-    <h1>{{ title }}</h1>
-    
-    <div>
-        {% if current_user.is_authenticated %}
-        <form method="post" action="">
-            {{ form.hidden_tag() }}
-            <div class="row">
-                <div class="col"> 
-                    {{ form.burn_date.label }}
-                    {{ form.burn_date(class="form-control") }}
-                </div>
-                <div class="col">
+<h1>{{ title }}</h1>
+<div>
+    {% if current_user.is_authenticated %}
+    <form method="post" action="">
+        {{ form.hidden_tag() }}
+        <div class="row">
+            <div class="col">
+                {{ form.burn_date.label }}
+                {{ form.burn_date(class="form-control") }}
+            </div>
+            <div class="col">
                 {{ form.weight.label }}
                 {{ form.weight(class="form-control") }}
-                </div>
             </div>
-            <div class="row">
-                <div class="col">
-                    {{ form.temperature_in.label }}
-                    {{ form.temperature_in(class="form-control") }}
-                    {% if form.temperature_in.errors %}
-                        {% for error in form.temperature_in.errors %}
-                        <span style="color: red;">{{ error }}</span>
-                        {% endfor %}
-                    {% endif %}
-                </div>
-                <div class="col">
-                    {{ form.temperature_out.label }}
-                    {{ form.temperature_out(class="form-control") }}
-                    {% if form.temperature_out.errors %}
-                        {% for error in form.temperature_out.errors %}
-                        <span style="color: red;">{{ error }}</span>
-                        {% endfor %}
-                    {% endif %}
-                </div>
-                <div class="col">
-                    <label>Poznámka</label>
-                    <button type="button" class="form-control" onclick="toggleHiddenSection()">
-                        + přidat
-                    </button>
-                </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                {{ form.temperature_in.label }}
+                {{ form.temperature_in(class="form-control") }}
+                {% if form.temperature_in.errors %}
+                {% for error in form.temperature_in.errors %}
+                <span style="color: red;">{{ error }}</span>
+                {% endfor %}
+                {% endif %}
             </div>
-            <div class="mb-3" id="note-input" style="display: none">
-                {{ form.note.label }}
-                {{ form.note(class="form-control") }}
+            <div class="col">
+                {{ form.temperature_out.label }}
+                {{ form.temperature_out(class="form-control") }}
+                {% if form.temperature_out.errors %}
+                {% for error in form.temperature_out.errors %}
+                <span style="color: red;">{{ error }}</span>
+                {% endfor %}
+                {% endif %}
             </div>
-            <div class="mb-3"></div>
-            <div class="mb-3">
-                {{ form.submit(class="btn btn-primary") }}
+            <div class="col">
+                <label>Poznámka</label>
+                <button type="button" class="form-control" onclick="toggleHiddenSection()">
+                    + přidat
+                </button>
             </div>
-        </form> 
+        </div>
+        <div class="mb-3" id="note-input" style="display: none">
+            {{ form.note.label }}
+            {{ form.note(class="form-control") }}
+        </div>
+        <div class="mb-3"></div>
+        <div class="mb-3">
+            {{ form.submit(class="btn btn-primary") }}
+        </div>
+    </form>
 
-        <script>
-            // handle the button to show/hide the note input
-            function toggleHiddenSection() {
-              const hiddenSection = document.getElementById('note-input');
-              const button = document.querySelector('.toggle-button');
-              if (hiddenSection.style.display === 'none' || !hiddenSection.style.display) {
+    <script>
+        // handle the button to show/hide the note input
+        function toggleHiddenSection() {
+            const hiddenSection = document.getElementById('note-input');
+            const button = document.querySelector('.toggle-button');
+            if (hiddenSection.style.display === 'none' || !hiddenSection.style.display) {
                 hiddenSection.style.display = 'block';
                 button.textContent = '- skrýt poznámku';
-              } else {
+            } else {
                 hiddenSection.style.display = 'none';
                 button.textContent = '- skrýt poznámku';
-              }
             }
-            // handle default date in the form
-            function setDefaultDate() {
+        }
+        // handle default date in the form
+        function setDefaultDate() {
             const datePicker = document.getElementById('burn_date');
             const today = new Date();
             const year = today.getFullYear();
             const month = String(today.getMonth() + 1).padStart(2, '0');
             const day = String(today.getDate()).padStart(2, '0');
             datePicker.value = `${year}-${month}-${day}`;
-            }
-            window.onload = setDefaultDate;
-        </script>
-        {% endif %}
-    </div>
-    <table class="table">
-        <thead>
-            <tr>
-                <th scope="col">Datum</th>
-                <th scope="col">Sezóna</th>
-                <th scope="col">Dřeva</th>
-                <th scope="col">Uvnitř</th>
-                <th scope="col">Venku</th>
-                <th scope="col">Poznámka</th>
-            </tr>
-        </thead>
-        <tbody>
+        }
+        window.onload = setDefaultDate;
+    </script>
+    {% endif %}
+</div>
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col">Datum</th>
+            <th scope="col">Sezóna</th>
+            <th scope="col">Dřeva</th>
+            <th scope="col">Uvnitř</th>
+            <th scope="col">Venku</th>
+            <th scope="col">Poznámka</th>
+        </tr>
+    </thead>
+    <tbody>
         {% for record in records %}
-            <tr>
-            <td>{{ record.burn_date.day }}/{{ record.burn_date.month }}/{{ record.burn_date.year }}</td>
+        <tr>
+            <td>
+                <a href="{{ url_for('main.heating_edit', id=record.id) }}">
+                    {{ record.burn_date.day }}/{{ record.burn_date.month }}/{{ record.burn_date.year }}
+                </a>
+            </td>
             <td>{{ record.season }}</td>
             <td>{{ record.weight }} kg</td>
             <td>{{ record.temperature_in }} °C</td>
             <td>{{ record.temperature_out }} °C</td>
             <td>{{ record.note }}</td>
-            </tr>
+        </tr>
         {% endfor %}
-        </tbody>
-    </table>
-    <div class="pagination">
-        {{ macros.render_pagination(records, '.heating') }}
-    </div>
+    </tbody>
+</table>
+<div class="pagination">
+    {{ macros.render_pagination(records, '.heating') }}
+</div>
 
 {% endblock %}

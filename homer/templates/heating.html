@@ -95,12 +95,12 @@
         <tr>
             <td>
                 <a href="{{ url_for('main.heating_edit', id=record.id) }}">
-                    {{ record.burn_date.day }}/{{ record.burn_date.month }}/{{ record.burn_date.year }}
+                    {{ record.burn_date.day }}/{{ record.burn_date.month }}/{{ record.burn_date.year-2000 }}
                 </a>
             </td>
             <td>
                 <a href="{{ url_for('main.heating_season', season_id=record.season) }}">
-                    {{ record.season }}
+                    {{ record.season[2:4] }}-{{ record.season[-2:] }}
                 </a>
             </td>
             <td>{{ record.weight }} kg</td>

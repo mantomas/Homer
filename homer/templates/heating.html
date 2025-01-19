@@ -94,9 +94,13 @@
         {% for record in records %}
         <tr>
             <td>
+                {% if current_user.is_authenticated %}
                 <a href="{{ url_for('main.heating_edit', id=record.id) }}">
                     {{ record.burn_date.day }}/{{ record.burn_date.month }}/{{ record.burn_date.year-2000 }}
                 </a>
+                {% else %}
+                {{ record.burn_date.day }}/{{ record.burn_date.month }}/{{ record.burn_date.year-2000 }}
+                {% endif %}
             </td>
             <td>
                 <a href="{{ url_for('main.heating_season', season_id=record.season) }}">

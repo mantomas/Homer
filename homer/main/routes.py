@@ -171,7 +171,7 @@ def heating_edit(id):
         burn_date = record.burn_date
     else:
         burn_date = form.burn_date.data
-    title_date = burn_date.strftime("%d/%m/%Y")
+    title_date = burn_date.strftime("%d.%m.%Y")
     if form.validate_on_submit():
         to_flash = None
         try:
@@ -186,7 +186,7 @@ def heating_edit(id):
             to_flash = str(e)
         except Exception as exc:
             to_flash = exc
-        burn_date = record.burn_date.strftime("%d/%m/%Y")
+        burn_date = record.burn_date.strftime("%d.%m.%Y")
         if to_flash:
             flash(to_flash)
             return render_template(

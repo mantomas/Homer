@@ -12,7 +12,14 @@
             </div>
             <div class="col">
                 {{ form.weight.label }}
-                {{ form.weight(class="form-control") }}
+                <select class="form-control" name="weight" id="weight">
+                    {% for value in form.weight.choices %}
+                    {% set current_value = form.weight.data %}
+                    <option value="{{ value }}" {% if value==current_value %}selected{% endif %}>
+                        {{ value }}
+                    </option>
+                    {% endfor %}
+                </select>
             </div>
         </div>
         <div class="row">

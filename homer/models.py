@@ -100,8 +100,14 @@ class Heating(db.Model):
         same_day_records = db.session.execute(
             db.select(Heating).where(Heating.burn_date == value)
         ).scalars()
-        if len(list(same_day_records)) > 1:
+        same_day_ids = [r.id for r in same_day_records]
+        if not self.id and len(same_day_ids) > 1:
+            # cannot create new record for the same day
             raise ValueError("Maximálně 2 topení za den.")
+        if self.id not in same_day_ids and len(same_day_ids) > 1:
+            # cannot update record to the day with 2 or more records
+            burn_date = value.strftime("%d.%m.%Y")
+            raise ValueError(f"Pro {burn_date} už jsou {len(same_day_ids)} záznamy.")
 
         return value
 

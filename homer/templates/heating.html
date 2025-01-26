@@ -3,8 +3,8 @@
 
 {% block content %}
 <h1>{{ title }}</h1>
+{% if current_user.is_authenticated %}
 <div>
-    {% if current_user.is_authenticated %}
     <form method="post" action="">
         {{ form.hidden_tag() }}
         <div class="row">
@@ -60,10 +60,8 @@
             const button = document.querySelector('.toggle-button');
             if (hiddenSection.style.display === 'none' || !hiddenSection.style.display) {
                 hiddenSection.style.display = 'block';
-                button.textContent = '- skrýt poznámku';
             } else {
                 hiddenSection.style.display = 'none';
-                button.textContent = '- skrýt poznámku';
             }
         }
         // handle default date in the form
@@ -77,8 +75,8 @@
         }
         window.onload = setDefaultDate;
     </script>
-    {% endif %}
 </div>
+{% endif %}
 <table class="table">
     <thead>
         <tr>

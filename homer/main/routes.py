@@ -37,7 +37,7 @@ def index():
                 author_id=author,
                 last_edit_by=author,
                 last_edited=now,
-                title=(form.title.data).capitalize(),
+                title=form.title.data,
                 body=form.body.data,
                 due_date=due,
                 done=False,
@@ -59,7 +59,7 @@ def index():
             )
         else:
             flash(
-                f"Vytvořeno: {(form.title.data).capitalize()} | "
+                f"Vytvořeno: {form.title.data} | "
                 f"Termín: {due.strftime('%d.%m.%Y %H')}:00"
             )
             return redirect(url_for(".index"))
@@ -353,7 +353,7 @@ def todo_edit(id):
             due_day = form.due_day.data
             due_hour = time(int(form.due_hour.data), 0, 0)
             due = datetime.combine(due_day, due_hour)
-            todo.title = (form.title.data).capitalize()
+            todo.title = form.title.data
             todo.due_date = due
             todo.body = form.body.data
             todo.last_edit_by = current_user._get_current_object().id
@@ -438,7 +438,7 @@ def todo():
                 author_id=author,
                 last_edit_by=author,
                 last_edited=now,
-                title=(form.title.data).capitalize(),
+                title=form.title.data,
                 body=form.body.data,
                 due_date=due,
                 done=False,
@@ -460,7 +460,7 @@ def todo():
             )
         else:
             flash(
-                f"Vytvořeno: {(form.title.data).capitalize()} | "
+                f"Vytvořeno: {form.title.data} | "
                 f"Termín: {due.strftime('%d.%m.%Y %H')}:00"
             )
             return redirect(url_for(".index"))

@@ -54,3 +54,16 @@ class HeatingForm(FlaskForm):
     )
     note = StringField("Poznámka")
     submit = SubmitField("Uložit")
+
+
+class ToDoForm(FlaskForm):
+    title = StringField("Titulek", validators=[InputRequired("Zadej titulek")])
+    body = PageDownField("Popis (Markdown)")
+    due_day = DateField("Den")
+    due_hour = SelectField(
+        "Hodina",
+        choices=range(0, 24),
+        default=12,
+        validators=[InputRequired()],
+    )
+    submit = SubmitField("Uložit")

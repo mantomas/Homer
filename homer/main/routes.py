@@ -1,4 +1,5 @@
-from datetime import datetime
+from datetime import datetime, time
+from enum import Enum
 
 from flask import render_template, redirect, url_for, flash, request
 from flask_login import current_user, login_required
@@ -6,14 +7,91 @@ from markupsafe import escape
 
 from homer import db
 from homer.main import bp
-from homer.models import Heating, Page, User
-from homer.main.forms import HeatingForm, PageForm
+from homer.models import Heating, Page, ToDo, User
+from homer.main.forms import HeatingForm, PageForm, ToDoForm
 
 
-@bp.route("/")
-@bp.route("/index")
+@bp.route("/", methods=["GET", "POST"])
+@bp.route("/index", methods=["GET", "POST"])
 def index():
-    return render_template("index.html")
+    form = ToDoForm()
+    # homepage shows only active tasks
+    todos = (
+        db.session.execute(
+            db.select(ToDo).where(ToDo.done == 0).order_by(ToDo.due_date.asc())
+        )
+        .scalars()
+        .all()
+    )
+    todos = mark_tasks(todos)
+    if form.validate_on_submit():
+        to_flash = None
+        try:
+            now = datetime.now()
+            author = current_user._get_current_object().id
+            due_day = form.due_day.data
+            due_hour = time(int(form.due_hour.data), 0, 0)
+            due = datetime.combine(due_day, due_hour)
+            record = ToDo(
+                created=now,
+                author_id=author,
+                last_edit_by=author,
+                last_edited=now,
+                title=(form.title.data).capitalize(),
+                body=form.body.data,
+                due_date=due,
+                done=False,
+            )
+            db.session.add(record)
+            db.session.commit()
+        except ValueError as e:
+            to_flash = str(e)
+        except Exception:
+            to_flash = TODO_ERROR
+        if to_flash:
+            flash(to_flash)
+            return render_template(
+                "index.html",
+                title="Seznam úkolů",
+                form=form,
+                current_user=current_user,
+                todos=todos,
+            )
+        else:
+            flash(
+                f"Vytvořeno: {(form.title.data).capitalize()} | "
+                f"Termín: {due.strftime('%d.%m.%Y %H')}:00"
+            )
+            return redirect(url_for(".index"))
+    return render_template(
+        "index.html",
+        title="Seznam úkolů",
+        form=form,
+        current_user=current_user,
+        todos=todos,
+    )
+
+
+class ToDoStatus(Enum):
+    # enum mapping to Bootstrap table classes
+    DONE = "table-success"
+    OVERDUE = "table-danger"
+    CLOSE = "table-warning"
+    SAFE = "table-info"
+
+
+def mark_tasks(todos: list[ToDo]):
+    for todo in todos:
+        days_left = (todo.due_date - datetime.now()).days
+        if todo.done:
+            todo.table_class = ToDoStatus.DONE
+        elif days_left < 0:
+            todo.table_class = ToDoStatus.OVERDUE
+        elif days_left < 3:
+            todo.table_class = ToDoStatus.CLOSE
+        else:
+            todo.table_class = ToDoStatus.SAFE
+    return todos
 
 
 @bp.route("/status")
@@ -42,6 +120,7 @@ PAGE_ERROR = (
 )
 
 HEATING_ERROR = "Něco se nepovedlo, zkontroluj si hodnoty."
+TODO_ERROR = "Úkol musí obsahovat titulek a termín."
 
 
 @bp.route("/page", methods=["GET", "POST"])
@@ -246,4 +325,149 @@ def heating_season(season_id):
         "heating_season.html",
         title=f"Topná sezóna {season_id}",
         statistics=statistics,
+    )
+
+
+@bp.route("/todo/<id>", methods=["GET"])
+def todo_view(id):
+    todo = db.one_or_404(db.select(ToDo).where(ToDo.id == escape(id)))
+    author = db.get_or_404(User, todo.author_id)
+    if todo.last_edit_by == todo.author_id:
+        editor = author
+    else:
+        editor = db.get_or_404(User, todo.last_edit_by)
+    return render_template(
+        "todo_view.html", title=todo.title, todo=todo, author=author, editor=editor
+    )
+
+
+@bp.route("/todo/<id>/edit", methods=["GET", "POST"])
+@login_required
+def todo_edit(id):
+    todo = db.one_or_404(db.select(ToDo).where(ToDo.id == escape(id)))
+    old_title = todo.title
+    form = ToDoForm()
+    if form.validate_on_submit():
+        to_flash = None
+        try:
+            due_day = form.due_day.data
+            due_hour = time(int(form.due_hour.data), 0, 0)
+            due = datetime.combine(due_day, due_hour)
+            todo.title = (form.title.data).capitalize()
+            todo.due_date = due
+            todo.body = form.body.data
+            todo.last_edit_by = current_user._get_current_object().id
+            todo.last_edited = datetime.now()
+            db.session.add(todo)
+            db.session.commit()
+        except ValueError as e:
+            to_flash = str(e)
+        except Exception:
+            to_flash = TODO_ERROR
+        if to_flash:
+            flash(to_flash)
+            return render_template(
+                "todo_edit.html",
+                title=f"Upravuješ: {old_title}",
+                form=form,
+                current_user=current_user,
+            )
+        else:
+            flash(f"Úkol změněn: {todo.title}")
+            return redirect(url_for(".todo_view", id=todo.id))
+    form.title.data = todo.title
+    form.body.data = todo.body
+    form.due_day.data = todo.due_date.date()
+    form.due_hour.data = todo.due_date.time().hour
+    return render_template(
+        "todo_edit.html",
+        title=f"Upravuješ: {todo.title}",
+        form=form,
+        current_user=current_user,
+    )
+
+
+@bp.route("/todo/<id>/switch", methods=["GET"])
+@login_required
+def todo_switch(id):
+    todo = db.one_or_404(db.select(ToDo).where(ToDo.id == escape(id)))
+    to_flash = None
+    new_status = not todo.done
+    if new_status:
+        done_date = datetime.now()
+    else:
+        done_date = None
+    try:
+        todo.done = new_status
+        todo.done_date = done_date
+        db.session.add(todo)
+        db.session.commit()
+    except ValueError as e:
+        to_flash = str(e)
+    except Exception:
+        to_flash = "Něco se nepovedlo."
+    if to_flash:
+        flash(to_flash)
+    else:
+        if todo.done:
+            flash(f"Hotovo: {todo.title}")
+        else:
+            flash(f"Zpět do práce: {todo.title}")
+    return redirect(request.referrer)
+
+
+@bp.route("/todo", methods=["GET", "POST"])
+def todo():
+    form = ToDoForm()
+    # all tasks for the todo page with pagination
+    page = request.args.get("page", 1, type=int)
+    todos = db.paginate(
+        db.select(ToDo).order_by(ToDo.id.desc()), page=page, per_page=30
+    )
+    todos = mark_tasks(todos)
+    if form.validate_on_submit():
+        to_flash = None
+        try:
+            now = datetime.now()
+            author = current_user._get_current_object().id
+            due_day = form.due_day.data
+            due_hour = time(int(form.due_hour.data), 0, 0)
+            due = datetime.combine(due_day, due_hour)
+            record = ToDo(
+                created=now,
+                author_id=author,
+                last_edit_by=author,
+                last_edited=now,
+                title=(form.title.data).capitalize(),
+                body=form.body.data,
+                due_date=due,
+                done=False,
+            )
+            db.session.add(record)
+            db.session.commit()
+        except ValueError as e:
+            to_flash = str(e)
+        except Exception:
+            to_flash = TODO_ERROR
+        if to_flash:
+            flash(to_flash)
+            return render_template(
+                "todo.html",
+                title="Všechny úkoly",
+                form=form,
+                current_user=current_user,
+                todos=todos,
+            )
+        else:
+            flash(
+                f"Vytvořeno: {(form.title.data).capitalize()} | "
+                f"Termín: {due.strftime('%d.%m.%Y %H')}:00"
+            )
+            return redirect(url_for(".index"))
+    return render_template(
+        "todo.html",
+        title="Všechny úkoly",
+        form=form,
+        current_user=current_user,
+        todos=todos,
     )

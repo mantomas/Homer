@@ -1,0 +1,110 @@
+{% if current_user.is_authenticated %}
+<div>
+    <form method="post" action="">
+        {{ form.hidden_tag() }}
+        <div class="row">
+            <div class="col">
+                <label>Nový úkol</label>
+                <button type="button" class="form-control" onclick="toggleHiddenSection()">
+                    + přidat
+                </button>
+            </div>
+        </div>
+        <div class="mb-3" id="note-input" style="display: none">
+            <div class="row">
+                <div class="col">
+                    {{ form.title.label }}
+                    {{ form.title(class="form-control") }}
+                    {% if form.title.errors %}
+                    {% for error in form.title.errors %}
+                    <span style="color: red;">{{ error }}</span>
+                    {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    {{ form.due_day.label }}
+                    {{ form.due_day(class="form-control") }}
+                </div>
+                <div class="col">
+                    {{ form.due_hour.label }}
+                    {{ form.due_hour(class="form-control") }}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    {{ form.body.label }}
+                    {{ form.body(class="form-control") }}
+                    {% if form.body.errors %}
+                    {% for error in form.body.errors %}
+                    <span style="color: red;">{{ error }}</span>
+                    {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+            <div class="mb-3"></div>
+            <div class="mb-3">
+                {{ form.submit(class="btn btn-primary") }}
+            </div>
+        </div>
+    </form>
+    {{ pagedown.include_pagedown() }}
+</div>
+<script>
+    // handle the button to show/hide the note input
+    function toggleHiddenSection() {
+        const hiddenSection = document.getElementById('note-input');
+        const button = document.querySelector('.toggle-button');
+        if (hiddenSection.style.display === 'none' || !hiddenSection.style.display) {
+            hiddenSection.style.display = 'block';
+        } else {
+            hiddenSection.style.display = 'none';
+        }
+    }
+</script>
+{% endif %}
+<div class="table-responsive">
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Úkol</th>
+                <th scope="col">Termín</th>
+                {% if current_user.is_authenticated %}
+                <th scope="col">Akce</th>
+                {% endif %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for todo in todos %}
+            <tr class="{{ todo.table_class.value }}">
+                <td>
+                    {% if todo.body %}
+                    <a href="{{ url_for('main.todo_view', id=todo.id) }}">
+                        {{ todo.title }}
+                    </a>
+                    {% else %}
+                    {{ todo.title }}
+                    {% endif %}
+                </td>
+                <td>{{ todo.due_date.strftime('%d.%m.%Y %H:%M') }}</td>
+                {% if current_user.is_authenticated %}
+                <td>
+                    <a href="{{ url_for('main.todo_edit', id=todo.id) }}">
+                        upravit
+                    </a>
+                    -
+                    <a href="{{ url_for('main.todo_switch', id=todo.id) }}">
+                        {% if todo.done %}
+                        znovu otevřít
+                        {% else %}
+                        hotovo
+                        {% endif %}
+                    </a>
+                </td>
+                {% endif %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

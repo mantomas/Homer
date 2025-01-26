@@ -137,3 +137,37 @@ class Heating(db.Model):
 
 
 db.event.listen(Heating.burn_date, "set", Heating.set_season)
+
+
+class ToDo(db.Model):
+    id: sqo.Mapped[int] = sqo.mapped_column(primary_key=True)
+    author_id: sqo.Mapped[int] = sqo.mapped_column(sqa.ForeignKey(User.id))
+    created: sqo.Mapped[datetime] = sqo.mapped_column(
+        sqa.DateTime, default=datetime.now
+    )
+    last_edited: sqo.Mapped[datetime] = sqo.mapped_column(
+        sqa.DateTime, default=datetime.now
+    )
+    last_edit_by: sqo.Mapped[int] = sqo.mapped_column(sqa.ForeignKey(User.id))
+    title: sqo.Mapped[str] = sqo.mapped_column(sqa.String(140))
+    body: sqo.Mapped[str] = sqo.mapped_column(sqa.Text)
+    body_html: sqo.Mapped[str] = sqo.mapped_column(sqa.Text)
+    due_date: sqo.Mapped[datetime] = sqo.mapped_column(sqa.DateTime, nullable=False)
+    done: sqo.Mapped[bool] = sqo.mapped_column(sqa.Boolean, default=False)
+    done_date: sqo.Mapped[datetime] = sqo.mapped_column(sqa.DateTime, nullable=True)
+
+    def __repr__(self):
+        return "<ToDo {}>".format(self.title)
+
+    @sqo.validates("author_id")
+    def validate_author(self, key, value):
+        if self.author_id and self.author_id != value:
+            raise ValueError("Nelze měnit autora.")
+        return value
+
+    @staticmethod
+    def on_changed_body(target, value, oldvalue, initiator):
+        target.body_html = markdown(value, output_format="html")
+
+
+db.event.listen(ToDo.body, "set", ToDo.on_changed_body)

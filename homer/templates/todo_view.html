@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>{% if todo.done %}✅{% endif %}{{ title }}</h1>
+<p>
+    <strong>Termín: {{ todo.due_date.strftime('%d.%m.%Y %H:%M') }}</strong>
+    {% if todo.done %}
+    <br><strong>Hotovo: {{ todo.done_date.strftime('%d.%m.%Y %H:%M') }}</strong>
+    {% endif %}
+</p>
+<p class="text-muted">
+    {{ author.username }} | poslední změny: {{ todo.last_edited.strftime('%d.%m.%Y %H:%M') }} - {{ editor.username }}
+    {% if current_user.is_authenticated %}
+    <a href="{{ url_for('main.todo_edit', id=todo.id) }}">upravit</a> -
+    <a href="{{ url_for('main.todo_switch', id=todo.id) }}">
+        {% if todo.done %}
+        znovu otevřít
+        {% else %}
+        hotovo
+        {% endif %}
+    </a>
+    {% endif %}
+</p>
+{% if todo.body_html %}
+{{ todo.body_html | safe }}
+{% else %}
+{{ todo.body }}
+{% endif %}
+{% endblock %}

@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>{{ title }}</h1>
+
+<div>
+    <form method="post" action="">
+        {{ form.hidden_tag() }}
+        <div class="row">
+            <div class="col">
+                {{ form.title.label }}
+                {{ form.title(class="form-control") }}
+                {% if form.title.errors %}
+                {% for error in form.title.errors %}
+                <span style="color: red;">{{ error }}</span>
+                {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                {{ form.due_day.label }}
+                {{ form.due_day(class="form-control") }}
+            </div>
+            <div class="col">
+                {{ form.due_hour.label }}
+                <select class="form-control" name="due_hour" id="due_hour">
+                    {% for value in form.due_hour.choices %}
+                    {% set current_value = form.due_hour.data %}
+                    <option value="{{ value }}" {% if value==current_value %}selected{% endif %}>
+                        {{ value }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                {{ form.body.label }}
+                {{ form.body(class="form-control") }}
+                {% if form.body.errors %}
+                {% for error in form.body.errors %}
+                <span style="color: red;">{{ error }}</span>
+                {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+        <div class="mb-3"></div>
+        <div class="mb-3">
+            {{ form.submit(class="btn btn-primary") }}
+        </div>
+    </form>
+    {{ pagedown.include_pagedown() }}
+</div>
+{% endblock %}

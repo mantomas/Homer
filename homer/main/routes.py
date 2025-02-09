@@ -78,6 +78,7 @@ class ToDoStatus(Enum):
     OVERDUE = "table-danger"
     CLOSE = "table-warning"
     SAFE = "table-info"
+    FAR = "table-light"
 
 
 def mark_tasks(todos: list[ToDo]):
@@ -87,10 +88,12 @@ def mark_tasks(todos: list[ToDo]):
             todo.table_class = ToDoStatus.DONE
         elif days_left < 0:
             todo.table_class = ToDoStatus.OVERDUE
-        elif days_left < 3:
+        elif days_left < 7:
             todo.table_class = ToDoStatus.CLOSE
-        else:
+        elif days_left < 14:
             todo.table_class = ToDoStatus.SAFE
+        else:
+            todo.table_class = ToDoStatus.FAR
     return todos
 
 

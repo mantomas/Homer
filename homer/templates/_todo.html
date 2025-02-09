@@ -79,6 +79,7 @@
             {% for todo in todos %}
             <tr class="{{ todo.table_class.value }}">
                 <td>
+                    {% if todo.done %}✅{% endif %}
                     {% if todo.body %}
                     <a href="{{ url_for('main.todo_view', id=todo.id) }}">
                         {{ todo.title }}

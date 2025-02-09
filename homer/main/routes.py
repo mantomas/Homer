@@ -230,7 +230,8 @@ def heating():
                 records=records,
             )
         else:
-            flash("Záznam o topení uložen.")
+            day = record.burn_date.strftime("%d.%m.%Y")
+            flash(f"Záznam {day} uložen.")
             return redirect(url_for(".heating"))
     return render_template(
         "heating.html",

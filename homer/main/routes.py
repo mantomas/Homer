@@ -317,6 +317,7 @@ def heating_season(season_id):
         "total_rounds": len(season_records),
         "total_weight": total_weight,
         "avg_weight": f"{(total_weight / len(season_records)):.1f}",
+        "avg_weight_per_day": f"{(total_weight / season_days):.2f}",
         "season_start": season_records[0].burn_date.strftime("%d/%m/%Y"),
         "season_end": season_records[-1].burn_date.strftime("%d/%m/%Y"),
         "season_days": season_days,

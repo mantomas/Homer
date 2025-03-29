@@ -11,6 +11,11 @@ Local home server
 - run the app in debug mode `make run-dev`
 - OR run production-like with `make run-prod`
 
+### Tests and linters
+- run all `tox -p`
+- run just tests `tox -e tests`
+    - run specific test `tox -e tests -- -k test_XY`
+
 ### To run on server
 - install system deps `sudo apt install supervisor nginx pipx`
 - install `uv` to manage Python dependencies

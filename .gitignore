@@ -176,3 +176,9 @@ cython_debug/
 
 # Homer stuff
 /backups
+
+# linters stuff
+coverage.json
+
+# VSCode settings
+.vscode/

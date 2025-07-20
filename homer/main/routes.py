@@ -9,6 +9,7 @@ from homer import db
 from homer.main import bp
 from homer.models import Heating, Page, ToDo, User
 from homer.main.forms import HeatingForm, PageForm, ToDoForm
+from homer.main.heating import AllSeasons, SeasonStats
 
 
 @bp.route("/", methods=["GET", "POST"])
@@ -308,28 +309,41 @@ def heating_season(season_id):
     if not season_records:
         flash(f"Žádné záznamy pro topnou sezonu {escape(season_id)}.")
         return redirect(url_for(".heating"))
-    season_days = (season_records[-1].burn_date - season_records[0].burn_date).days
-    total_weight = sum([record.weight for record in season_records])
-    temperatures_in = [record.temperature_in for record in season_records]
-    temperatures_out = [record.temperature_out for record in season_records]
-    # put together some stats
-    statistics = {
-        "total_rounds": len(season_records),
-        "total_weight": total_weight,
-        "avg_weight": f"{(total_weight / len(season_records)):.1f}",
-        "avg_weight_per_day": f"{(total_weight / season_days):.2f}",
-        "season_start": season_records[0].burn_date.strftime("%d/%m/%Y"),
-        "season_end": season_records[-1].burn_date.strftime("%d/%m/%Y"),
-        "season_days": season_days,
-        "average_round": f"{((season_days * 24) / len(season_records)):.0f}",
-        "avg_temp_in": f"{(sum(temperatures_in) / len(season_records)):.1f}",
-        "avg_temp_out": f"{(sum(temperatures_out) / len(season_records)):.1f}",
-    }
+    season = SeasonStats(season_records)
 
     return render_template(
         "heating_season.html",
         title=f"Topná sezóna {season_id}",
-        statistics=statistics,
+        statistics=season.statistics,
+    )
+
+
+@bp.route("/heating/season/compare", methods=["GET"])
+def heating_season_compare():
+    all_season_records = (
+        db.session.execute(db.select(Heating).order_by(Heating.burn_date.asc()))
+        .scalars()
+        .all()
+    )
+    if not all_season_records:
+        flash("Žádné záznamy pro topení.")
+        return redirect(url_for(".heating"))
+
+    # list seasons, e.g. [2023-2024, 2025-2026]
+    recorded_seasons = sorted(
+        list(set([record.season for record in all_season_records]))
+    )
+    # store seasons in separate objects
+    all_seasons_list = []
+    for season in recorded_seasons:
+        season_records = [i for i in all_season_records if i.season == season]
+        all_seasons_list.append(SeasonStats(season_records))
+    all_seasons = AllSeasons(all_seasons_list)
+
+    return render_template(
+        "heating_season_compare.html",
+        title="Přehled topení",
+        statistics=all_seasons.statistics,
     )
 
 

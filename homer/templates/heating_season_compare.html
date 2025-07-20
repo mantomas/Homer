@@ -1,0 +1,197 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>{{ title }}</h1>
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col">statistika/rok</th>
+            {% for season in statistics %}
+            <th scope="col">{{ season.season }}</th>
+            {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Začátek sezóny</td>
+            {% for season in statistics %}
+            {% if season.min_season_start %}
+            <td class="table-danger">
+                {{ season.season_start.strftime("%d-%m-%Y") }}
+            </td>
+            {% elif season.max_season_start %}
+            <td class="table-success">
+                {{ season.season_start.strftime("%d-%m-%Y") }}
+            </td>
+            {% else %}
+            <td>
+                {{ season.season_start.strftime("%d-%m-%Y") }}
+            </td>
+            {% endif %}
+            {% endfor %}
+        </tr>
+        <tr>
+            <td>Konec sezóny</td>
+            {% for season in statistics %}
+            {% if season.max_season_end %}
+            <td class="table-danger">
+                {{ season.season_end.strftime("%d-%m-%Y") }}
+            </td>
+            {% elif season.min_season_end %}
+            <td class="table-success">
+                {{ season.season_end.strftime("%d-%m-%Y") }}
+            </td>
+            {% else %}
+            <td>
+                {{ season.season_end.strftime("%d-%m-%Y") }}
+            </td>
+            {% endif %}
+            {% endfor %}
+        </tr>
+        <tr>
+            <td>Délka sezóny</td>
+            {% for season in statistics %}
+            {% if season.max_season_days %}
+            <td class="table-danger">
+                {{ season.season_days }}
+            </td>
+            {% elif season.min_season_days %}
+            <td class="table-success">
+                {{ season.season_days }}
+            </td>
+            {% else %}
+            <td>
+                {{ season.season_days }}
+            </td>
+            {% endif %}
+            {% endfor %}
+        </tr>
+        <tr>
+            <td>Průměrná doba mezi top.</td>
+            {% for season in statistics %}
+            {% if season.max_average_round %}
+            <td class="table-success">
+                {{ "{:.2f}".format(season.average_round) }}
+            </td>
+            {% elif season.min_average_round %}
+            <td class="table-danger">
+                {{ "{:.2f}".format(season.average_round) }}
+            </td>
+            {% else %}
+            <td>
+                {{ "{:.2f}".format(season.average_round) }}
+            </td>
+            {% endif %}
+            {% endfor %}
+        </tr>
+        <tr>
+            <td>Počet topení</td>
+            {% for season in statistics %}
+            {% if season.max_total_rounds %}
+            <td class="table-danger">
+                {{ season.total_rounds }}
+            </td>
+            {% elif season.min_total_rounds %}
+            <td class="table-success">
+                {{ season.total_rounds }}
+            </td>
+            {% else %}
+            <td>
+                {{ season.total_rounds }}
+            </td>
+            {% endif %}
+            {% endfor %}
+        </tr>
+        <tr>
+            <td>průměrná teplota uvnitř</td>
+            {% for season in statistics %}
+            {% if season.max_avg_temp_in %}
+            <td class="table-success">
+                {{ "{:.2f}".format(season.avg_temp_in) }}
+            </td>
+            {% elif season.min_avg_temp_in %}
+            <td class="table-danger">
+                {{ "{:.2f}".format(season.avg_temp_in) }}
+            </td>
+            {% else %}
+            <td>
+                {{ "{:.2f}".format(season.avg_temp_in) }}
+            </td>
+            {% endif %}
+            {% endfor %}
+        </tr>
+        <tr>
+            <td>Průměrná teplota venku</td>
+            {% for season in statistics %}
+            {% if season.max_avg_temp_out %}
+            <td class="table-success">
+                {{ "{:.2f}".format(season.avg_temp_out) }}
+            </td>
+            {% elif season.min_avg_temp_in %}
+            <td class="table-danger">
+                {{ "{:.2f}".format(season.avg_temp_out) }}
+            </td>
+            {% else %}
+            <td>
+                {{ "{:.2f}".format(season.avg_temp_out) }}
+            </td>
+            {% endif %}
+            {% endfor %}
+        </tr>
+        <tr>
+            <td>Průměrně dřeva na topení (kg)</td>
+            {% for season in statistics %}
+            {% if season.max_avg_weight %}
+            <td class="table-danger">
+                {{ "{:.2f}".format(season.avg_weight) }}
+            </td>
+            {% elif season.min_avg_weight %}
+            <td class="table-success">
+                {{ "{:.2f}".format(season.avg_weight) }}
+            </td>
+            {% else %}
+            <td>
+                {{ "{:.2f}".format(season.avg_weight) }}
+            </td>
+            {% endif %}
+            {% endfor %}
+        </tr>
+        <tr>
+            <td>Průměrně dřeva na den (kg)</td>
+            {% for season in statistics %}
+            {% if season.max_avg_weight_per_day %}
+            <td class="table-danger">
+                {{ "{:.2f}".format(season.avg_weight_per_day) }}
+            </td>
+            {% elif season.min_avg_weight_per_day %}
+            <td class="table-success">
+                {{ "{:.2f}".format(season.avg_weight_per_day) }}
+            </td>
+            {% else %}
+            <td>
+                {{ "{:.2f}".format(season.avg_weight_per_day) }}
+            </td>
+            {% endif %}
+            {% endfor %}
+        </tr>
+        <tr>
+            <td>Celkem protopeno (kg)</td>
+            {% for season in statistics %}
+            {% if season.max_total_weight %}
+            <td class="table-danger">
+                {{ season.total_weight }}
+            </td>
+            {% elif season.min_total_weight %}
+            <td class="table-success">
+                {{ season.total_weight }}
+            </td>
+            {% else %}
+            <td>
+                {{ season.total_weight }}
+            </td>
+            {% endif %}
+            {% endfor %}
+        </tr>
+    </tbody>
+</table>
+{% endblock %}
